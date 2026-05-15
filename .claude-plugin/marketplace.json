@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "human-prose-skill",
+  "description": "A Claude Code skill that makes AI-generated prose read like a human wrote it",
+  "owner": {
+    "name": "abdulazizsapra",
+    "email": "abdul@confidenceclub.com"
+  },
+  "plugins": [
+    {
+      "name": "human-prose",
+      "description": "Prevents AI writing tells in articles, blog posts, essays, and any substantial prose output — cuts puffery, replaces generic claims with specifics, and applies a full vocabulary and pattern checklist",
+      "author": {
+        "name": "abdulazizsapra"
+      },
+      "category": "productivity",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/abdulazizsapra/human-prose-skill.git",
+        "path": "plugins/human-prose",
+        "ref": "main"
+      },
+      "homepage": "https://github.com/abdulazizsapra/human-prose-skill"
+    }
+  ]
+}
