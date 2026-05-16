@@ -508,3 +508,215 @@ The original is the press release verbatim. The revision keeps the actual facts 
 ### Rule
 
 If a passage reads like ad copy, identify which sentences contain verifiable facts and which contain only sentiment. Keep the first kind, possibly with attribution. Delete the second kind.
+
+---
+
+## 21. Burstiness failure: uniform sentence length
+
+### Pattern
+
+Every sentence in a paragraph falls in the 15–25 word range. The prose reads smoothly but flatly — no variation in rhythm or structural complexity.
+
+### Before
+
+> The district was established in 1987 as part of a broader administrative reorganization. It covers an area of approximately 2,400 square kilometers across three geographic zones. The local economy is based primarily on small-scale agriculture, with some manufacturing activity in the northern sector. Infrastructure development has been a focus of regional investment over the past decade.
+
+Four sentences: 19, 17, 22, 17 words. Standard deviation ≈ 2. This is the AI signature.
+
+### After
+
+> The district was established in 1987. It covers about 2,400 square kilometers across three geographic zones, with the northern sector holding most of the manufacturing activity — the rest is small-scale farming. Infrastructure has been the main focus of regional investment since then, though progress has been uneven.
+
+Three sentences: 7, 32, 15 words. Standard deviation ≈ 10. The rhythm now has shape.
+
+### Why
+
+GPTZero and similar detectors measure the standard deviation of per-sentence complexity across a document. A low standard deviation is the burstiness failure — the document is statistically "too smooth." The fix isn't adding more words; it's adding genuine variance in length and syntactic complexity.
+
+### Rule
+
+In every paragraph, aim for at least one sentence under 8 words and at least one sentence over 25 words. The short sentences should carry real information — not throwaways, not filler. The long sentences should earn their length with genuine subordinate structure.
+
+---
+
+## 22. Uniform hedging distribution
+
+### Pattern
+
+Modal verbs (may, might, could, would) and epistemic hedges (suggests, indicates, appears) appear at a roughly constant rate throughout the document — every three to five sentences, regardless of whether the claim is uncertain.
+
+### Before
+
+> The program may have contributed to improved outcomes. Students who participated could show stronger retention rates, though this would need further study. Some researchers suggest the curriculum design might play a role. The evidence appears mixed, but there could be benefits worth investigating.
+
+Four sentences, four hedges. The hedging is uniform, not calibrated to actual uncertainty.
+
+### After
+
+> The program had no measurable effect on outcomes in its first two years. The third-year cohort showed stronger retention — 71% vs. 58% for the control group — but the sample was small and the difference may not replicate at scale. Draw no conclusions yet.
+
+Two hedges in three sentences, but only where genuine uncertainty exists. The first claim is stated directly. The last sentence is a fragment directive.
+
+### Why
+
+Research finds AI-generated text distributes modal verbs evenly across a document, while human writing hedges near genuinely uncertain claims and asserts directly near known facts. Uniform hedging is itself a statistical signal — it's the model's risk-aversion, not epistemic care.
+
+### Rule
+
+Find the places where the text actually knows something. State them without qualifiers. Reserve hedging for the places of real uncertainty. If you can't find any place to make a direct claim, the content may lack sufficient specific knowledge and should be shortened.
+
+---
+
+## 23. Emotional register flatness
+
+### Pattern
+
+The entire document maintains a measured, balanced, constructive tone throughout. Every paragraph is informative but emotionally neutral. The writing is pleasant to read but feels like it came from a machine optimized to offend no one.
+
+### Before
+
+> The organization has made significant strides in recent years, facing challenges that have tested its resilience. Despite these obstacles, the team has demonstrated a commitment to its mission, adapting its approach and continuing to serve its community with dedication and purpose.
+
+Uniformly positive, uniformly vague, emotionally flat.
+
+### After
+
+> The organization spent three years stumbling — two leadership changes, one serious funding gap, a board dispute that went public in 2022. What came out the other side was leaner and, frankly, more serious about what it was supposed to do.
+
+Specific, emotionally present, includes mild negativity before a real assessment.
+
+### Why
+
+Research using psycholinguistic analysis (LIWC) found AI text has 96–133% higher positive emotion markers than human text, with 30–40% less sadness and 39–46% less anxiety. The uniformly positive-balanced register is a statistical fingerprint. Human writing has tonal shifts, negative assessments, frustration — and a detector that models emotional distribution will find their absence.
+
+### Rule
+
+In any piece longer than 300 words, include at least one sentence that expresses genuine skepticism, criticism, or negative assessment. It doesn't have to be dramatic. "This part didn't work" is enough.
+
+---
+
+## 24. Contraction absence
+
+### Pattern
+
+The document uses formal constructions throughout: "it is," "do not," "they are," "cannot," "will not." No contractions appear.
+
+### Before
+
+> It is important to note that the process does not always work as expected. There are cases where the system cannot handle the volume and will not produce reliable results without additional configuration.
+
+### After
+
+> The process doesn't always work as expected. There are cases where the system can't handle the volume and won't produce reliable results without additional configuration.
+
+### Why
+
+AI underuses contractions because formal training data and RLHF feedback rewarded careful, formal writing. Research on feature-based detection identifies contraction frequency as a measurable human signal. The absence of contractions isn't wrong — it's appropriate in formal academic writing. But in any conversational or moderate-register prose, zero contractions is a tell.
+
+### Rule
+
+Before delivering any blog post, article, essay, or conversational piece: scan for "it is," "do not," "they are," "cannot," "will not," "we have," "you are" and evaluate whether contractions fit the register. In most non-academic contexts, they do.
+
+---
+
+## 25. Sentence-initial conjunction avoidance
+
+### Pattern
+
+No sentence in the document starts with "But," "And," "So," "Yet," or "Or." Every logical connection is expressed through formal conjunctions ("however," "therefore," "furthermore") or clause structure.
+
+### Before
+
+> The data showed a clear trend. However, the trend reversed in the final quarter. Therefore, the initial conclusion was premature.
+
+### After
+
+> The data showed a clear trend. But it reversed in the final quarter. The initial conclusion was premature.
+
+### Why
+
+AI avoids sentence-initial conjunctions because style guides ban them and training data penalized them. This means their complete absence is itself a signal of AI authorship. Human writers use "But" and "And" at sentence openings constantly — it's one of the most natural connective moves in English prose.
+
+### Rule
+
+In any document over 200 words, include at least one sentence starting with "But," "And," "So," or "Yet" if the logical connection warrants it. Don't force it; but don't systematically avoid it either.
+
+---
+
+## 26. Fragment avoidance
+
+### Pattern
+
+Every sentence is grammatically complete. No fragments appear, even where a fragment would be rhetorically powerful.
+
+### Before
+
+> The proposal was rejected. This was a significant setback for the team, which had invested several months of work in preparing the submission and was counting on the funding to begin the next phase.
+
+### After
+
+> The proposal was rejected. Months of work. Gone.
+
+Or:
+
+> The proposal was rejected — which the team had spent months preparing, counting on the funding to move to the next phase. A serious setback.
+
+### Why
+
+AI almost never produces sentence fragments without explicit prompting. Fragments are a human rhetorical choice. Their complete absence is detectable.
+
+### Rule
+
+In persuasive, journalistic, or narrative prose: use one fragment per 300–400 words, placed where the rhetorical emphasis is highest. Don't use them in academic writing or any context that demands complete sentences.
+
+---
+
+## 27. Passive voice underuse
+
+### Pattern
+
+Every sentence uses the active voice. No passive constructions appear.
+
+### Before
+
+> The committee rejected the proposal. The board overturned the committee's decision. An outside consultant then reviewed the case.
+
+### After
+
+> The proposal was rejected by the committee. The decision was overturned by the board. The case was then reviewed by an outside consultant — or simply: the case was then reviewed.
+
+### Why
+
+This is counterintuitive: modern instruction-tuned AI uses *less* passive voice than human writers, because RLHF training rewarded active voice (which writing guides recommend). Research found GPT-4o uses passive voice at only 51–53% of the human rate. Applying the standard "avoid passive voice" advice to AI-generated text actually makes it *more* detectable.
+
+Passive voice is correct when: the agent is unknown or unimportant; the receiver of the action is more important than the actor; the construction reads more naturally.
+
+### Rule
+
+Don't systematically avoid passive voice. Use it where it fits. Review any all-active-voice document for places where passive would be more natural and add them.
+
+---
+
+## 28. Tier-0 vocabulary markers in context
+
+### Pattern
+
+Words with 90–170× human frequency appear in otherwise neutral prose.
+
+### Before (actual AI output)
+
+> The team's camaraderie was palpable, creating an atmosphere of mutual support amidst the challenges they faced. The project's intricate details required careful attention, and the tapestry of their collaboration became evident in the final result.
+
+Five Tier-0 markers in two sentences: *camaraderie*, *palpable*, *amidst*, *intricate*, *tapestry*.
+
+### After
+
+> The team had worked together long enough that disagreements stayed productive. The project was complicated — more moving parts than anyone had expected — and the coordination was tighter than usual.
+
+### Why
+
+Research measured these specific words at 90–170× their frequency in human writing. A single use in a long document is survivable. Multiple uses in a short passage are definitive. These appear because the RLHF instruction-tuning process rewards "vivid," "evocative" language — and these words were reinforced during fine-tuning.
+
+### Rule
+
+Before delivering: grep the entire document for `camaraderie`, `palpable`, `amidst`, `intricate`, `tapestry`, and `testament`. One hit: consider replacement. Two hits in proximity: rewrite both. Three or more: the passage needs a full revision.

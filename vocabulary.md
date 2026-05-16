@@ -15,7 +15,24 @@ For each word, the rule is the same: **one in passing is fine; clusters are a pr
 
 ---
 
-## Tier 1: high-priority avoid list (current eras)
+## Tier 0: statistically extreme outliers (100x+ human frequency)
+
+Research using Douglas Biber's lexical feature analysis (PNAS, 2024) measured specific words in instruction-tuned AI output vs. human text. These appear at astronomical multiples of human frequency — introduced by the RLHF instruction-tuning process, not base model pre-training. Treat these as immediate disqualifiers: one use flags the entire passage.
+
+| Word | Multiple above human frequency | Rule |
+| --- | --- | --- |
+| camaraderie | 147–171× | Never use. No exceptions. |
+| tapestry (figurative) | 147–155× | Delete. Every time. |
+| intricate / intricacies | 119–129× | Replace with "complex" or name the specific detail |
+| palpable | 95–145× | Replace with a concrete sensory description |
+| amidst | 90–100× | Use "amid" or "in" |
+| testament (figurative) | documented | Delete. Every time. |
+| vibrant | documented | Cut, or describe what's actually happening |
+| delve / delving | documented | Use "examine," "look at," "study" |
+
+---
+
+## Tier 1: high-priority avoid list (current era)
 
 These appear constantly in current AI output. Cut or replace aggressively.
 
@@ -40,6 +57,13 @@ These appear constantly in current AI output. Cut or replace aggressively.
 | contribute to / contributing to | (cut the participial tail) |
 | serve as / serves as | is, was, acts as |
 | stand as / stands as | is, was |
+| seamlessly | (cut — nothing is ever seamless) |
+| transformative | (cut — specify what changed) |
+| multifaceted | (cut — say what the facets are) |
+| nuanced | (cut — say what the nuance is) |
+| groundbreaking | (cut — say why it's new) |
+| innovative | (cut — say what's new about it) |
+| compelling | (cut — either argue the case or don't) |
 
 ## Tier 2: 2023–2024 (GPT-4) tells
 
@@ -71,7 +95,7 @@ These dropped off in newer models but appear in older pasted content. Heavy revi
 
 ## Tier 3: significance and importance signaling
 
-Whole phrases that flag inflated importance. Treat the whole phrase as the unit to delete, not the individual words.
+Whole phrases that flag inflated importance. Treat the whole phrase as the unit to delete.
 
 - "stands as a testament to"
 - "serves as a testament to"
@@ -135,7 +159,7 @@ These appear when AI tries to assert that a subject is important by gesturing at
 
 ## Tier 5: travel-brochure / brochure-speak
 
-When the topic is a place, a building, a product, or a cultural item, these phrases appear.
+When the topic is a place, a building, a product, or a cultural item:
 
 - "nestled in / nestled among / nestled within"
 - "in the heart of"
@@ -174,11 +198,11 @@ These appear when the model doesn't have the information and is bridging the gap
 - "Little is publicly known, though..."
 - "While not extensively covered, it is believed that..."
 
-**Rule:** if a sentence starts with any of these, the entire sentence is almost certainly speculation and should be deleted. Do not rewrite. Delete.
+**Rule:** if a sentence starts with any of these, the entire sentence is almost certainly speculation. Delete it. Do not rewrite.
 
 ## Tier 7: superficial-analysis participial tails
 
-Cut the participial phrase. Sometimes cut the whole sentence.
+Cut the participial phrase. Sometimes cut the whole sentence. Note: **any** present participial clause, not just these specific phrases, is a detection signal at above-human rates. Audit all of them.
 
 - "...contributing to the [region's / community's / industry's] [growth / development / character]"
 - "...cementing its status as..."
@@ -232,17 +256,42 @@ If the writing is a comment, reply, or message, never use:
 
 These are almost always cuttable. Just state the next thing.
 
+## Tier 10: certainty and causal overuse
+
+AI-generated text shows 111–152% more certainty markers than human text, and 50–67% more causal expressions than human text in factual writing.
+
+**Certainty markers to audit:**
+
+- "clearly"
+- "obviously"
+- "certainly"
+- "is fundamental"
+- "is essential"
+- "undeniably"
+- "without question"
+- "it is clear that"
+- "there is no doubt that"
+
+**Causal over-connectors:**
+
+- "therefore"
+- "consequently"
+- "as a result"
+- "thus"
+- "hence"
+
+One of these in a document is fine. When they appear every few sentences, the causal-density pattern is itself a tell. Replace most with no connector at all — let the logic flow without announcing it.
+
 ---
 
 ## Co-occurrence patterns
 
-The document's research shows these words tend to cluster. Seeing one should raise suspicion of the others nearby:
+Finding one of these should trigger a document-wide search, not just a local fix:
 
 - **GPT-4 cluster:** delve + intricate + tapestry + testament + vibrant + meticulous + crucial + pivotal + underscore
 - **GPT-4o cluster:** align with + foster + enhance + showcase + crucial + pivotal + enduring + vibrant + underscore
-- **GPT-5 cluster:** emphasizing + highlighting + showcasing + enhance (often alongside notability claims and lists of media outlets)
-
-When revising, finding one of these usually means there are several. Search the whole document, not just one passage.
+- **GPT-5 / Claude cluster:** emphasizing + highlighting + showcasing + enhance (often alongside notability claims and lists of media outlets)
+- **Tier-0 cluster:** palpable + amidst + camaraderie + tapestry + intricate — seeing two of these together is a strong signal; seeing three is definitive
 
 ---
 
@@ -251,3 +300,19 @@ When revising, finding one of these usually means there are several. Search the 
 For most words in this file, the right answer is not to substitute a synonym but to delete the word and see if the sentence still works. It usually does, and is usually better for the loss.
 
 When a sentence breaks under deletion, the question is whether the *idea* the word was carrying is one you have evidence for. If yes, rewrite the sentence around the concrete evidence. If no, delete the sentence too.
+
+---
+
+## Words that should appear *more* in human-like prose
+
+Research identifies what's *absent* from AI text, not just what's present. Human prose uses more:
+
+- **Contractions**: it's, don't, we've, can't, they're, won't, I'd, you'll
+- **Sentence-initial conjunctions**: "But," "And," "So," "Yet," "Or"
+- **Direct address**: "you," "your" used in the reader-address sense
+- **First-person perspective**: "I think," "in my view," "what I found" — when the context is appropriate
+- **Specific proper nouns**: names, dates, places, numbers — not "some researchers" or "a recent study"
+- **Informal or colloquial expressions** — calibrated to context; not forced
+- **Questions** — rhetorical, direct, or exploratory
+- **Fragment sentences** — for rhetorical emphasis
+- **Passive voice** — counterintuitively, humans use more passive than AI; use it where it fits naturally

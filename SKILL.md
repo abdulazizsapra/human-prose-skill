@@ -7,15 +7,76 @@ description: Use this skill whenever writing prose that should read like a human
 
 This skill prevents the formulaic patterns that mark text as AI-generated. The patterns it targets aren't just "detector tells" — they're the same habits that make writing feel padded, generic, and hollow to any attentive reader. Following this skill should produce prose that's tighter, more specific, and more varied than default LLM output.
 
+## How AI detectors actually work
+
+Understanding what detectors measure lets you target them directly.
+
+GPTZero and similar detectors measure seven dimensions — but two dominate:
+
+**Perplexity:** After each word, a language model predicts the next. AI text is predictable — the model's guesses keep hitting. Human text keeps surprising the model. Low perplexity = AI. High perplexity = human.
+
+**Burstiness:** The variance in how AI-like each sentence is across the full document. Humans write in bursts: runs of direct, simple prose followed by tangled, complex constructions followed by something very short. AI writes at a statistically uniform level throughout. The standard deviation of per-sentence complexity is the detection signal — not the average level.
+
+A document can have reasonable vocabulary and still fail on burstiness alone. Every sentence in the same 15–25 word band, same hedging rate, same clause depth, same formality — that pattern is the signature, regardless of which words were chosen.
+
+The other five signals: sentence-level classification (each sentence scored individually), vocabulary fingerprints, paragraph-length uniformity, hedging density, and register uniformity.
+
+No single signal triggers detection. Detectors cluster-score — multiple signals present together drive the score. The goal is to dissolve the cluster.
+
+---
+
 ## The core principle: specific beats generic, always
 
 LLMs regress toward the statistical mean: when a specific fact is rare or uncertain, the model reaches for something generic that "could apply to many topics." That tendency is the root of nearly every pattern below. The single most important question to ask of any sentence is:
 
 **Could this sentence appear in an article about almost any other subject in the same category?**
 
-If yes, the sentence is failing. "Kumba has long been an important center for trade and agriculture" could describe ten thousand towns. "Kumba's cocoa market handles roughly 60% of Southwest Region exports" describes one. Prefer the second kind of sentence. When the specific fact isn't available, *cut the sentence entirely* — do not substitute a generic one to fill the gap.
+If yes, the sentence is failing. "Kumba has long been an important center for trade and agriculture" could describe ten thousand towns. "Kumba's cocoa market handles roughly 60% of Southwest Region exports" describes one. Prefer the second kind. When the specific fact isn't available, *cut the sentence entirely* — do not substitute a generic one to fill the gap.
 
-This is the single principle the rest of the skill operationalizes.
+---
+
+## The burstiness requirement — the most important structural rule
+
+Burstiness is the signal most writers miss because it requires deliberate structural effort, not just word choice.
+
+**The rule:** In every paragraph, vary sentence length aggressively. A three-word sentence followed by a twenty-word sentence followed by a seven-word sentence is more human than three fifteen-word sentences. The standard deviation of sentence lengths within a paragraph should be high.
+
+What this looks like in practice:
+
+> The report landed on a Tuesday. Nobody read it for three days, which was typical — the team had learned to let data settle before reacting, a lesson from the 2021 incident when a preliminary finding triggered two weeks of misdirected work before anyone checked the methodology. Bad lesson, bad outcome.
+
+Short. Long (with embedded clause and historical callback). Short fragment.
+
+Also vary syntactic complexity, not just length. Alternate between:
+- Simple declaratives ("She left.")
+- Coordinate structures ("She left, and he stayed.")
+- Subordinated structures ("She left before he had a chance to explain, which meant the conversation they'd been deferring for three months would keep deferring.")
+- Fragments ("Too late.")
+- Questions ("What was the point?")
+
+AI writes every sentence as a grammatically complete, medium-complexity statement. That uniformity is detectable.
+
+---
+
+## Sentence-level requirements for low perplexity variance
+
+**Use sentence fragments for emphasis.** Humans do this constantly. AI almost never does without explicit instruction:
+
+> The committee approved the measure. Unanimously. That had never happened before.
+
+**Start sentences with conjunctions.** "And," "But," "So" at sentence beginnings are natural in real prose. AI avoids them because style guides say to:
+
+> The budget was cut. But the timeline wasn't.
+
+**Use contractions.** "It's" not "it is." "Don't" not "do not." "We've" not "we have." AI underuses contractions because formal training data rewarded their absence. Contractions are a positive human signal.
+
+**Use passive voice where it fits.** This is counterintuitive: research finds modern instruction-tuned models use *less* passive voice than humans, because RLHF training punishes passive constructions. Reaching for passive where it's natural actually helps: "The report was buried," "Mistakes were made," "Nothing was settled."
+
+**Address the reader directly.** "You've seen this before." "Consider what this means for your own situation." "Ask yourself." Direct second-person address is a register that AI rarely initiates without prompting.
+
+**Ask rhetorical questions.** "Why would anyone want that?" "Is this actually surprising?" Questions break the declarative monotony that detectors look for.
+
+**Vary the reading level within the document.** Write technically in one section, casually in the next. The Flesch-Kincaid uniformity of AI-written documents is itself a signal. Human writers shift register — explain something simply, then add a technical aside, then drop into colloquial summary.
 
 ---
 
@@ -39,8 +100,6 @@ The most common AI tell. The model gestures at importance instead of demonstrati
 - "a vibrant tapestry of"
 - "the rich tapestry of [anything]"
 
-**Why this matters:** these phrases are content-free. They tell the reader the subject is important without giving any reason. A reader who already knows the topic learns nothing; a reader who doesn't is being asked to take it on faith. If the subject is important, *show* it with a specific fact. If you can't think of a specific fact, the subject may not actually be important in that respect — cut the claim.
-
 **Test:** if removing the sentence loses no information, remove the sentence.
 
 ### 2. The "-ing" superficial analysis
@@ -53,19 +112,20 @@ Sentences that end with a present-participle phrase tacking on broader significa
 - "...symbolizing the unity of the community."
 - "...cementing its status as a hub."
 
-These almost always add zero information. The first half of the sentence is fine; the participial tail is filler. Cut the tail. Treat any sentence ending in a comma followed by an "-ing" phrase as suspect.
+These almost always add zero information. Cut the tail. Treat any sentence ending in a comma followed by an "-ing" phrase as suspect.
+
+A deeper finding from instruction-tuning research: present participial clauses of any kind appear at 5x human rates in AI output. "Bryan, leaning on the railing, watched..." — the embedded participial construction. These aren't always wrong, but their density is a detection signal. Audit them.
 
 ### 3. Notability advertising
 
 Especially common when writing about people, companies, or organizations:
 
-- listing media outlets the subject has appeared in ("featured in Vogue, Wired, and the Toronto Star")
+- listing media outlets the subject has appeared in
 - "maintains an active social media presence"
 - "has received independent coverage from major outlets"
 - "profiled in leading publications"
-- "her insights have been cited in..."
 
-If a source is worth referencing, reference it once and use what it actually says. Don't list outlets as a proxy for substance. Never write the phrase "active social media presence" or any close variant.
+If a source is worth referencing, reference it once and use what it actually says.
 
 ### 4. Vague attribution and weasel wording
 
@@ -76,30 +136,29 @@ If a source is worth referencing, reference it once and use what it actually say
 - "Researchers describe..."
 - "It is widely believed that..."
 
-Either name the source or drop the attribution. If you have one source, say "according to [source]." Don't write "scholars" when you mean "one scholar." Don't write "publications such as" before naming the only two publications you have.
+Either name the source or drop the attribution entirely.
 
 ### 5. The "challenges and future prospects" template
 
-Avoid this entire structural move:
+Avoid:
 
 > "Despite its [positive trait], [subject] faces challenges, including [list]. However, with ongoing initiatives and continued investment, [subject] is well-positioned to..."
 
-Do not write sections titled "Challenges and Future Directions," "Future Prospects," "Challenges and Legacy," or similar. Do not end articles with speculation about how the subject will adapt to emerging trends. If there's a real, sourced challenge worth discussing, discuss it as a normal paragraph without the framing.
+Do not write sections titled "Challenges and Future Directions," "Future Prospects," "Challenges and Legacy," or similar. If there's a real, sourced challenge worth discussing, discuss it as a normal paragraph without the framing.
 
 ### 6. Negative parallelisms
 
 - "Not just X, but Y"
 - "It's not X — it's Y"
 - "Not a [thing], but a [other thing]"
-- "No X, no Y, just Z"
 
-These are punchy in marketing copy; they're conspicuous in encyclopedic or analytical prose. Use them sparingly — at most once in a long piece, and only when the contrast genuinely matters. Never use them to manufacture drama.
+Punchy in marketing copy; conspicuous in analytical prose. Use at most once in a long piece, only when the contrast genuinely matters.
 
 ### 7. The rule of three
 
-LLMs reflexively cluster things in threes — three adjectives, three noun phrases, three parallel clauses. "Bold, innovative, and forward-thinking." "Through critique, correction, and clarity." "A celebration of culture, community, and craft."
+LLMs reflexively cluster things in threes. "Bold, innovative, and forward-thinking." "Through critique, correction, and clarity."
 
-Vary list lengths. Use two items. Use four. Use one. When you do use three, make sure each item carries distinct weight.
+Vary list lengths. Use two items. Use four. Use one.
 
 ### 8. Avoidance of plain "is" and "are"
 
@@ -107,12 +166,10 @@ LLMs over-substitute marketing verbs for plain copulas:
 
 - "serves as a hub" → it is a hub
 - "stands as the first" → it was the first
-- "represents a milestone" → it is a milestone (or just: cut the sentence)
 - "boasts a population of" → has a population of
 - "features four galleries" → has four galleries
-- "offers visitors a chance to" → lets visitors
 
-Default to "is," "are," "has," "was." Reach for fancier verbs only when they carry actual meaning.
+Default to "is," "are," "has," "was."
 
 ### 9. The lead-sentence "refers to" tic
 
@@ -124,58 +181,99 @@ Write directly:
 
 > "A health catchment area is the geographic area from which a health facility draws its patients."
 
-Articles describe their subjects, not the words for their subjects.
-
 ### 10. Knowledge-cutoff and gap-filling hedges
 
-Never write any of these:
+Never write:
 
 - "Based on available information..."
 - "While specific details are limited..."
 - "Information about X is not widely documented..."
 - "As of my last knowledge update..."
-- "X is not extensively covered in available sources, but likely..."
-- "X maintains a low profile / keeps personal details private" (when no source actually says this)
+- "X maintains a low profile / keeps personal details private" (when no source says this)
 
-If information is missing, just leave it out. Do not pad with speculation about why it's missing. Do not invent personality claims to fill biographical gaps.
+If information is missing, leave it out. Do not pad with speculation.
 
 ### 11. Section conclusions and summaries
 
-Avoid "In summary," "In conclusion," "Overall," and ending sections by restating their own content. Don't add a final paragraph that wraps a piece up with sentiment. The reader just read it. They don't need a recap.
+Avoid "In summary," "In conclusion," "Overall," and ending sections by restating their own content. The reader just read it.
+
+### 12. Uniform hedging distribution
+
+AI distributes hedging evenly — modal verbs (may, might, could, would, should) appear at a statistically uniform rate throughout. Humans cluster hedging where uncertainty is real and assert boldly everywhere else.
+
+**Rule:** Intersperse strong declaratives ("This is wrong." "The data shows otherwise." "It doesn't work.") with appropriately hedged passages. Both are needed. What's detectable is the even distribution.
+
+### 13. Emotional register flatness
+
+AI-generated text shows 96–133% higher positive emotion markers than human text and significantly less frustration, skepticism, and uncertainty. Uniform positivity is a detection signal.
+
+Include emotional variation: skepticism, frustration, enthusiasm, genuine uncertainty. A sentence that expresses doubt or irritation ("This is a mess, frankly.") reads as human. A document where every sentence maintains the same measured, balanced, constructive tone reads as AI.
+
+### 14. Paragraph-length uniformity
+
+AI paragraphs cluster in a 3–5 sentence band. The standard deviation of paragraph length is artificially low.
+
+**Rule:** Include at minimum one single-sentence paragraph per 500 words, used for rhetorical emphasis. Include at least one long paragraph (7–9 sentences) and at least one very short one (1–2 sentences). Break the symmetry.
 
 ---
 
 ## Vocabulary to avoid (high-priority list)
 
-These are the words the document calls out as the strongest individual lexical tells. One in passing is fine. Two or three in a paragraph is a problem. The fix is usually deletion or a plainer word, not a fancier synonym.
+These are the strongest lexical signals. One in passing is fine. Two or three in a paragraph is a problem.
+
+**Current-era (GPT-4o / GPT-5 class) highest-priority:**
 
 | Avoid | Often becomes |
 | --- | --- |
-| delve into | examine, look at, study |
-| crucial / pivotal / vital / key | important, central — or cut |
-| underscore / highlight (as verb) | show, suggest — or cut |
-| tapestry | (cut entirely) |
-| testament (to) | (cut entirely) |
-| enduring | lasting, long-running |
-| robust | strong, well-built |
-| vibrant | (cut, or describe what's actually happening) |
-| meticulous / meticulously | careful, carefully |
-| intricate / intricacies | complex, complexity |
-| bolster / bolstered | strengthen, supported |
-| garner | receive, get, earn |
-| foster / fostering | encourage, build |
-| showcase / showcasing | show, display, present |
-| boast / boasts | has |
+| emphasizing | showing, stressing — usually cut |
+| highlighting | showing — usually cut |
+| showcasing | showing, displaying — usually cut |
+| enhance / enhances | improve, increase, add to |
+| underscore (verb) | show, suggest — usually cut |
+| crucial | important, central — often cut |
+| pivotal | important, decisive — often cut |
+| robust | strong, well-built, durable |
 | navigate (figurative) | handle, work through |
-| landscape (abstract) | field, area — or cut |
-| ecosystem (non-biological) | (cut, name what you mean) |
-| interplay | interaction — or cut |
-| valuable insights | (cut, say what was learned) |
-| align with | match, fit |
+| foster / fostering | encourage, build, support |
+| valuable insights | (cut, replace with what was learned) |
+| align with | match, fit, accord with |
 | resonate with | matter to, ring true for |
-| Additionally (sentence-initial) | Also, And, — or just cut |
+| ensure / ensuring | make sure, see that |
+| reflect / reflecting (broader) | (cut the broader claim) |
+| contribute to / contributing to | (cut the participial tail) |
+| serve as / serves as | is, was |
+| stand as / stands as | is, was |
 
-Many more in `references/vocabulary.md`. Check that file when revising heavy passages or when the user asks for an especially careful pass.
+**Extreme outliers — statistically at 100x+ human frequency in AI text:**
+
+| Word | Note |
+| --- | --- |
+| camaraderie | 147–171x human frequency — never use |
+| tapestry (figurative) | 147–155x human frequency — delete entirely |
+| intricate / intricacies | 119–129x — replace with "complex" or specify the detail |
+| palpable | 95–145x — replace with a concrete sensory description |
+| amidst | 90–100x — use "amid" or "in" |
+
+**GPT-4 era (still flagged in older pasted content):**
+
+| Avoid | Substitute |
+| --- | --- |
+| delve / delving into | examine, study, look at |
+| testament (figurative) | (cut entirely) |
+| boast / boasts (figurative) | has |
+| bolster / bolstered | strengthen, support |
+| meticulous / meticulously | careful, carefully |
+| garner / garnered | receive, earn, get |
+| interplay | interaction — or cut |
+| landscape (abstract noun) | field, area, scene — or cut |
+| Additionally (sentence-initial) | Also, And — or cut |
+| Furthermore | Also, And |
+| Moreover | Also |
+| In essence | (cut) |
+| Ultimately | (often cut) |
+| At its core | (cut) |
+
+Many more in `references/vocabulary.md`. Check that file when revising heavy passages.
 
 ---
 
@@ -183,81 +281,75 @@ Many more in `references/vocabulary.md`. Check that file when revising heavy pas
 
 ### Boldface
 
-Do not use boldface for "key takeaway" emphasis throughout a piece. Do not bold the first instance of every term being defined. Use bold sparingly — typically only for genuine reference-style emphasis where a reader scanning the page needs to find a term. In most prose, no bold at all is correct.
+Do not use boldface for "key takeaway" emphasis throughout a piece. In most prose, no bold at all is correct.
 
 ### Inline-header bullet lists
 
-Avoid the pattern of bulleted lists where each bullet is a bold phrase, a colon, and an explanation:
+The single most conspicuous list-format AI tell:
 
 - **Versatility:** The tool works across many domains.
 - **Reliability:** It performs consistently under load.
-- **Scalability:** It handles growth gracefully.
 
-This is the single most conspicuous list-format AI tell. When information is genuinely list-like, use plain bullets without bold inline headers. When information is genuinely prose, use prose.
+Use plain bullets without bold inline headers. When information is genuinely prose, use prose.
 
 ### Em dashes
 
-Em dashes are not banned — they're useful punctuation. But LLMs reach for them constantly to add a "punchy" beat. Audit em dashes: would a comma, colon, or parenthetical work? Often yes. A piece of any length should use em dashes a handful of times at most, not in every other sentence.
-
-### Curly quotes and apostrophes
-
-Use straight quotes (`"` and `'`) and straight apostrophes by default in any context where the text might be pasted into a wiki, code, or plain-text environment. Only use curly quotes when the user has clearly requested typeset output.
+LLMs reach for em dashes constantly. Audit them: would a comma, colon, or parenthetical work? A piece of any length should use em dashes a handful of times at most.
 
 ### Title case in headings
 
-Use sentence case for headings, not title case. "History of the canal" — not "History Of The Canal" or "History of the Canal." Capitalize only the first word and proper nouns.
+Use sentence case for headings, not title case. "History of the canal" — not "History of the Canal."
 
 ### Markdown contamination
 
-If the output will be pasted into a non-Markdown environment (especially MediaWiki / Wikipedia), do not use Markdown syntax. No `**bold**`, no `# headings`, no `---` thematic breaks, no `*italic*`. Use whatever syntax the target environment uses, or plain prose with no formatting at all.
+If the output will be pasted into a non-Markdown environment, use that environment's syntax or plain prose.
 
 ### Section structure tells
 
-- Do not skip from `# Heading 1` directly to `### Heading 3` — use consecutive levels.
-- Do not insert thematic breaks (`---`, `***`) before every heading.
-- Do not include "Conclusion" or "Summary" sections in articles unless the user asks.
+- Do not skip heading levels (e.g., `#` → `###`).
+- Do not insert thematic breaks (`---`) before every heading.
+- Do not include "Conclusion" or "Summary" sections unless the user asks.
 
 ---
 
 ## Citation and reference behavior
 
-Several of the document's strongest tells involve hallucinated or sloppy citations. Apply these rules whenever generating citations:
-
-- **Never invent a citation.** If you can't verify a source exists, don't cite it. Say the claim is unsourced instead.
-- **Never use placeholder text** like `[INSERT URL]`, `2025-XX-XX`, `PASTE_LINK_HERE` in finished output.
-- **Never leave UTM parameters** like `utm_source=chatgpt.com` or `utm_source=openai` on URLs you produce.
-- **Never output reference markup artifacts** like `citeturn0search0`, `oai_citation`, `:contentReference[oaicite:N]`, `【85†L261-269】`, or `grok_render_citation_card_json`. These come from chatbot UIs and should never appear in pasted output.
+- **Never invent a citation.** If you can't verify a source exists, don't cite it.
+- **Never use placeholder text** like `[INSERT URL]`, `2025-XX-XX`, `PASTE_LINK_HERE`.
+- **Never leave UTM parameters** on URLs (`utm_source=chatgpt.com`).
+- **Never output UI artifacts**: `citeturn0search0`, `oai_citation`, `【85†L261-269】`.
 - **Book citations need page numbers** when the claim is specific.
-- **Don't pad with citations** that just exist to look thorough.
 
 ---
 
 ## Discussion / talk-page contamination
 
-These patterns appear when AI-generated text is pasted into discussions, comments, or correspondence. Avoid all of them in conversational replies and in any prose meant to look like a real person's writing:
+Avoid in conversational replies and any prose meant to look like a real person's writing:
 
-- "I hope this helps!" / "Let me know if..." / "Of course!" / "Certainly!" — drop conversational chatbot framings.
-- Subject lines at the top of comments ("Subject: Request for...").
-- "I am committed to ensuring..." / "I assure you that my intentions align with..." — formal legalese protestations of good faith.
+- "I hope this helps!" / "Let me know if..." / "Of course!" / "Certainly!"
+- "I am committed to ensuring..." / "I assure you that my intentions align with..."
 - Numbered, headered breakdowns of one's own concerns in a casual reply.
-- Citations to non-existent shortcuts or policies the writer obviously hasn't read.
 
 ---
 
 ## When asked to "humanize" existing AI-generated text
 
-When the user provides AI-generated text and asks you to humanize it, work through it in this order:
+Work through it in this order:
 
-1. **Cut puffery sentences entirely** (patterns 1, 2, 5, 11 above). Do not rewrite — delete. Most "humanized" output gets ruined by trying to preserve every sentence; many should not exist.
-2. **Replace generic claims with specific ones** only if the specifics are actually known. If not, leave a gap.
-3. **Break up the rule-of-three lists.** Make some pairs, some single items, some longer.
-4. **Replace fancy verbs with plain ones** (pattern 8 and the vocabulary table).
-5. **Vary sentence length deliberately.** AI prose tends toward uniform medium-length sentences. Mix in some short ones. Use some longer ones with subordinate clauses.
-6. **Audit em dashes.** Replace most with commas or parentheses.
-7. **Audit headings.** Sentence case. Reasonable depth.
-8. **Audit boldface.** Almost always: remove.
-9. **Strip Markdown artifacts** if the target isn't Markdown.
-10. **Re-read the whole piece.** Does it sound like one person wrote it, or like a model generating what an article should look like? If the latter, cut more.
+1. **Cut puffery sentences entirely** — do not rewrite, delete.
+2. **Break burstiness uniformity** — actively vary sentence length and complexity. Insert a 3-word sentence after a 25-word one. Add a fragment or a question.
+3. **Add contractions** — "it's," "don't," "we've," "can't."
+4. **Start a few sentences with conjunctions** — "But this ignores something important." "And that's the problem."
+5. **Replace generic claims with specific ones** only if the specifics are actually known.
+6. **Break the rule-of-three lists.** Make some pairs, some single items, some longer.
+7. **Replace fancy verbs with plain ones** and eliminate vocabulary from the tables above.
+8. **Vary paragraph length** — add one very short paragraph, break up one very long one, keep one long.
+9. **Adjust emotional register** — add one place where the tone is skeptical or irritated, one place of genuine enthusiasm, not just balanced assessment.
+10. **Audit hedging** — replace uniform modal verbs with some direct assertions.
+11. **Audit em dashes** — replace most with commas or parentheses.
+12. **Audit headings** — sentence case, reasonable depth.
+13. **Audit boldface** — almost always: remove.
+14. **Re-read the whole piece.** Does it sound like one person wrote it with one voice, or like a model generating what an article should look like?
 
 The output of a humanize pass should usually be **shorter** than the input, often substantially. If your revision is the same length, you probably haven't done the job.
 
@@ -265,19 +357,17 @@ The output of a humanize pass should usually be **shorter** than the input, ofte
 
 ## What human writing actually looks like
 
-Two reminders, because the patterns above are easier to recognize than the alternative is to produce:
-
-- **Real writers have opinions, gaps, and rough edges.** They state things directly without softening every claim with a hedge. They sometimes use a word that's slightly imprecise because the precise word would be tedious. They don't summarize their own paragraphs back to the reader.
-- **Real writers withhold.** When they don't know something, they say so plainly ("the date of his birth isn't known") or don't mention it. They don't speculate about why a fact is missing.
+- **Real writers have opinions, gaps, and rough edges.** They state things directly without softening every claim. They sometimes use a slightly imprecise word because the precise one would be tedious. They don't summarize their own paragraphs back to the reader.
+- **Real writers have moods.** Their prose varies emotionally: confidence in some places, frustration in others, dry humor occasionally, plain weariness sometimes.
+- **Real writers withhold.** When they don't know something, they say so plainly ("the date of his birth isn't known") or don't mention it.
+- **Real writers make structural choices that reflect how they think**, not how a document should be structured. They put a long tangent in the middle. They end a section abruptly. They return to something they said three paragraphs ago.
 
 ---
 
 ## Reference files
 
-Read these when doing detailed revision work or when handling especially long or sensitive content:
+Read these when doing detailed revision work or handling especially long or sensitive content:
 
-- `references/vocabulary.md` — full catalog of overused words organized by LLM era (GPT-4, GPT-4o, GPT-5), with substitution guidance.
-- `references/patterns.md` — extended pattern catalog with before/after examples for each major category.
-- `references/checklist.md` — a quick pre-publish pass list to run through before delivering substantial prose.
-
-For routine prose generation, the principles in this file are usually enough. Load the references when the user asks for deeper care, when revising long documents, or when a first pass still reads as formulaic.
+- `references/vocabulary.md` — full catalog of overused words organized by LLM era, with substitution guidance and new extreme-frequency outliers.
+- `references/patterns.md` — extended pattern catalog with before/after examples.
+- `references/checklist.md` — a quick pre-publish pass list including new burstiness, contraction, and register checks.
